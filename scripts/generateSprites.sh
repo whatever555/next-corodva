@@ -11,9 +11,16 @@ svg2sprite static/sprites/sources/${SPRITE_NAME} ${GENERATED_SPRITE_NAME}
 
 spriteData=$(<$GENERATED_SPRITE_NAME)
 newSprite="${newSprite//---SPRITE_DATA---/$spriteData}" 
-newSprite="${newSprite//xmlns:x/xmlnsX}" 
 out="${newSprite//<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>/}" 
 
 touch componentPath
 echo "${out}" >> "${componentPath}" 
+
+# fix up svg for jsx
+#sed -i 's/xmlns:\([a-z]\)/xmlns\U\1/g' ${componentPath} 
+perl -pi.bak -e 's/([a-z]):([a-z])/\1\U\2/g' ${componentPath} 
+perl -pi.bak  -e's/style=\".*?\"//g' ${componentPath} 
+#clean up tmp file created by perl
+rm ${componentPath}.bak
+
 echo "${SPRITE_NAME} SPRITE Updated!"
